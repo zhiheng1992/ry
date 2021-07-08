@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('离职类型列表')" />
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="post-form">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            离职名称：<input type="text" name="dimiName"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="csr:dimi:add">
+                <i class="fa fa-plus"></i> 新增
+            </a>
+            <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="csr:dimi:edit">
+                <i class="fa fa-edit"></i> 修改
+            </a>
+            <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="csr:dimi:remove">
+                <i class="fa fa-remove"></i> 删除
+            </a>
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<script th:inline="javascript">
+    // @permission.hasPermi('cms:type:edit')  调用作用域中的Shiro提供的内置对象，做权限校验。
+    var editFlag = [[${@permission.hasPermi('csr:dimi:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('csr:dimi:remove')}]];
+    var datas = [[${@dict.getType('sys_normal_disable')}]];
+    var prefix = ctx + "csr/dimi";
+
+    $(function() {
+        var options = {
+            url: prefix + "/list", // 查询路径地址。就是分页查询
+            createUrl: prefix + "/add", // 新增路径地址、 显示新增页面和提交新增数据同地址。不同请求方式。 get请求显示新增视图， post请求提交新增数据
+            updateUrl: prefix + "/edit/{id}", // 修改路径地址。 根据主键查询，或提交修改内容
+            removeUrl: prefix + "/remove", // 删除路径地址。
+            // exportUrl: prefix + "/export", // 到处表格路径地址
+            sortName: "dimiSort", // 定义短名称
+            modalName: "离职类型",
+            columns: [{
+                checkbox: true // 复选框
+            },
+                {
+                    field: 'dimiId',
+                    title: '离职员工编号',
+                    sortable: true
+                },
+                {
+                    field: 'dimiName',  // 提供要显示的数据的属性名称。
+                    title: '离职员工名称',
+                    sortable: true
+                },
+                {
+                    field: 'remark',
+                    title: '离职理由',
+                    sortable: true
+                },
+                {
+                    field: 'dimiSort',
+                    title: '显示顺序',
+                    sortable: true
+                },
+                {
+                    field: 'status',
+                    title: '状态',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(datas, value);
+                    }
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.dimiId + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.dimiId + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+</script>
+</body>
+</html>

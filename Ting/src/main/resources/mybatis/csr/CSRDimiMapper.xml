@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.csr.dimi.mapper.CSRDimiMapper">
+    <!-- 查询结果resultSet和实体类型CMSType之间的映射关系 -->
+    <resultMap type="CSRDimi" id="CSRDimiResult">
+        <id     property="dimiId"        column="dimi_id"       />
+        <result property="dimiName"      column="dimi_name"     />
+        <result property="dimiSort"      column="dimi_sort"     />
+        <result property="status"        column="status"        />
+        <result property="createBy"      column="create_by"     />
+        <result property="createTime"    column="create_time"   />
+        <result property="updateBy"      column="update_by"     />
+        <result property="updateTime"    column="update_time"   />
+        <result property="remark"        column="remark"        />
+    </resultMap>
+
+    <!-- 条件查询 -->
+    <select id="selectCSRDimiList" parameterType="CSRDimi" resultMap="CSRDimiResult">
+        select dimi_id, dimi_name, dimi_sort, status, create_by, create_time, update_by, update_time, remark
+        from ums_dimi
+        <where>
+            <if test="dimiName != null and dimiName != ''">
+                <!-- concat是MySQL数据库中的函数，用来实现字符串拼接。
+                     concat(string...)
+                 -->
+                AND dimi_name like concat('%', #{dimiName}, '%')
+            </if>
+        </where>
+    </select>
+
+
+    <!-- 根据公告类型名称查询公告类型对象 -->
+    <select id="checkDimiNameUnique" parameterType="String"
+            resultMap="com.ruoyi.project.csr.dimi.mapper.CSRDimiMapper.CSRDimiResult">
+        select dimi_id, dimi_name, dimi_sort, status, create_by, create_time, update_by, update_time, remark
+        from ums_dimi
+        where dimi_name = #{dimiName}
+    </select>
+
+
+    <!--新增公告类型-->
+    <insert id="insertCSRDimi" parameterType="CSRDimi" useGeneratedKeys="true" keyProperty="dimiId">
+        insert into ums_dimi(
+        <if test="dimiId != null and dimiId != 0">dimi_id,</if>
+        <if test="dimiName != null and dimiName != ''">dimi_name,</if>
+        <if test="dimiSort != null and dimiSort != ''">dimi_sort,</if>
+        <if test="status != null and status != ''">status,</if>
+        <if test="remark != null and remark != ''">remark,</if>
+        <if test="createBy != null and createBy != ''">create_by,</if>
+        create_time
+        ) values (
+        <if test="dimiId != null and dimiId != 0">#{dimiId},</if>
+        <if test="dimiName != null and dimiName != ''">#{dimiName},</if>
+        <if test="dimiSort != null and dimiSort != ''">#{dimiSort},</if>
+        <if test="status != null and status != ''">#{status},</if>
+        <if test="remark != null and remark != ''">#{remark},</if>
+        <if test="createBy != null and createBy != ''">#{createBy},</if>
+        sysdate()
+        )
+    </insert>
+
+    <!-- 根据主键更新公告类型 -->
+    <update id="updateCSRDimi" parameterType="CSRDimi">
+        update ums_dimi
+        <set>
+            <if test="dimiName != null and dimiName != ''">dimi_name = #{dimiName},</if>
+            <if test="dimiSort != null and dimiSort != ''">dimi_sort = #{dimiSort},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where dimi_id = #{dimiId}
+    </update>
+    <!-- 主键查询公告类型 -->
+    <select id="selectCSRDimiBy" parameterType="long"
+            resultMap="com.ruoyi.project.csr.dimi.mapper.CSRDimiMapper.CSRDimiResult">
+        select dimi_id, dimi_name, dimi_sort, status, create_by, create_time, update_by, update_time, remark
+        from ums_dimi
+        where dimi_id = #{id}
+    </select>
+
+    <delete id="deleteCSRDimiByIds" parameterType="Long">
+        delete from ums_dimi where dimi_id in
+        <foreach collection="dimiId" item="dimiId" open="(" separator="," close=")">
+            #{dimiId}
+        </foreach>
+    </delete>
+
+</mapper>
